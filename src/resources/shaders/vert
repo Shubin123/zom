@@ -1,0 +1,15 @@
+#version 330 core
+layout (location = 0) in vec3 aPos;   // Position data
+layout (location = 1) in vec2 aTexCoord; // Texture coordinates
+
+out vec2 TexCoord;
+
+uniform vec2 uTexOffset;   // Offset to apply to texture coordinates
+uniform vec2 uTexScale;    // Scale factor for UVs (for resampling)
+
+void main() {
+    gl_Position = vec4(aPos, 1.0);
+
+    // Apply the offset and scale
+    TexCoord = aTexCoord * uTexScale + uTexOffset;
+}
