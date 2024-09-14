@@ -5,7 +5,7 @@ import org.lwjgl.Version;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
-import org.lwjgl.vulkan.*;
+//import org.lwjgl.vulkan.*;
 
 import java.io.IOException;
 

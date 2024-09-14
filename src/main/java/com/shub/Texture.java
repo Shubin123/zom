@@ -24,7 +24,7 @@ public class Texture {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // Load the texture image
-        try (var stack = stackPush()) {
+        try (org.lwjgl.system.MemoryStack stack = stackPush()) {
             IntBuffer width = stack.mallocInt(1);
             IntBuffer height = stack.mallocInt(1);
             IntBuffer nrChannels = stack.mallocInt(1);
@@ -46,7 +46,7 @@ public class Texture {
 
     public static void checkLoaded(String filePath)
     {
-        try (var stack = stackPush()) {
+        try (org.lwjgl.system.MemoryStack stack = stackPush()) {
             IntBuffer width = stack.mallocInt(1);
             IntBuffer height = stack.mallocInt(1);
             IntBuffer nrChannels = stack.mallocInt(1);

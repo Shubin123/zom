@@ -1,6 +1,5 @@
 package com.shub;
 
-
 import java.io.IOException;
 
 public class Main {
