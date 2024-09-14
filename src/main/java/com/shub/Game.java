@@ -26,6 +26,7 @@ public class Game {
 
         window = i.start();
 
+
         Loop l = new Loop(window);
 
         l.start();

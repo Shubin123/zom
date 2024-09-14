@@ -1,9 +1,8 @@
 package com.shub;
 
-
-
 import org.lwjgl.opengl.GL20;
 
+import static com.shub.Draw.createMesh;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.glUseProgram;
 import static org.lwjgl.opengl.GL30.glGetUniformLocation;
@@ -25,41 +24,52 @@ public class Object {
         glAttachShader(shaderProgram, fragmentShader);
         glLinkProgram(shaderProgram);
 
+        // Check for shader program linking errors
+        int linkStatus = glGetProgrami(shaderProgram, GL_LINK_STATUS);
+        if (linkStatus == GL_FALSE) {
+            String infoLog = glGetProgramInfoLog(shaderProgram);
+            throw new RuntimeException("Shader program linking failed: " + infoLog);
+        }
+
         // Clean up shaders (they're linked, no need to keep them)
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
         // Load mesh data (vertices, UVs, and indices)
-
-        // Cube vertex data (positions and texture coordinates)
-        float[] vertices = {
+        final float[] vertices = {
                 // Positions          // Texture Coords
-                -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // Top-left front
-                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left front
-                0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // Bottom-right front
-                0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // Top-right front
-                -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // Top-left back
-                -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // Bottom-left back
-                0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // Bottom-right back
-                0.5f,  0.5f,  0.5f,  0.0f, 1.0f  // Top-right back
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  // Bottom-left-back
+                0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  // Bottom-right-back
+                0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  // Top-right-back
+                -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  // Top-left-back
+
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  // Bottom-left-front
+                0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  // Bottom-right-front
+                0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  // Top-right-front
+                -0.5f,  0.5f,  0.5f,  0.0f, 1.0f   // Top-left-front
         };
 
-        // Cube indices (two triangles per face)
-        int[] indices = {
-                // Front face
-                0, 1, 2, 2, 3, 0,
+        final int[] indices = {
                 // Back face
-                4, 5, 6, 6, 7, 4,
+                0, 1, 2,
+                2, 3, 0,
+                // Front face
+                4, 5, 6,
+                6, 7, 4,
                 // Left face
-                4, 5, 1, 1, 0, 4,
+                0, 3, 7,
+                7, 4, 0,
                 // Right face
-                3, 2, 6, 6, 7, 3,
+                1, 5, 6,
+                6, 2, 1,
                 // Top face
-                4, 0, 3, 3, 7, 4,
+                3, 2, 6,
+                6, 7, 3,
                 // Bottom face
-                1, 5, 6, 6, 2, 1
+                0, 1, 5,
+                5, 4, 0
         };
-        mesh = Draw.createMesh(vertices, indices);
+        mesh = createMesh(vertices, indices);
 
         // Load texture
         textureID = Texture.loadTexture("./src/resources/textures/uv.png");
@@ -69,8 +79,10 @@ public class Object {
         int texScaleLocation = glGetUniformLocation(shaderProgram, "uTexScale");
 
         // Set default uniform values (no offset, no rescale initially)
+        glUseProgram(shaderProgram); // Ensure shader program is active
         glUniform2f(texOffsetLocation, 0.0f, 0.0f);
         glUniform2f(texScaleLocation, 1.0f, 1.0f);
+        glUseProgram(0); // Unbind the shader program
     }
 
     public int getShaderProgram() {

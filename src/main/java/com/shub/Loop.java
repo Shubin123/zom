@@ -1,6 +1,8 @@
 package com.shub;
 
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -22,10 +24,8 @@ public class Loop {
         // Set up the objects (shaders, textures, mesh)
         object.setup();
 
-
         // Set up the camera
         camera = new Camera(45.0f, 800, 600, 0.1f, 100.0f);
-
 
         int shaderProgram = object.getShaderProgram();
         int textureID = object.getTextureID();
@@ -35,33 +35,40 @@ public class Loop {
         int texOffsetLocation = glGetUniformLocation(shaderProgram, "uTexOffset");
         int texScaleLocation = glGetUniformLocation(shaderProgram, "uTexScale");
 
+        // Uniform locations for matrices
+        int modelLoc = glGetUniformLocation(shaderProgram, "model");
+        int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        int projLoc = glGetUniformLocation(shaderProgram, "projection");
+
+        if (modelLoc == -1 || viewLoc == -1 || projLoc == -1) {
+            System.out.println("Error: Uniform locations not found.");
+        }
+
         while (!glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-            // Update camera and send matrices to the shader
-            camera.update();
-            int viewLoc = glGetUniformLocation(shaderProgram, "view");
-            int projLoc = glGetUniformLocation(shaderProgram, "projection");
-
-            glUniformMatrix4fv(viewLoc, false, camera.getViewMatrix().get(new float[16]));
-            glUniformMatrix4fv(projLoc, false, camera.getProjectionMatrix().get(new float[16]));
-
-
             // Use the shader program
             glUseProgram(shaderProgram);
+
+            // Update matrices and send them to the shader
+            camera.update();
+
+            Matrix4f model = new Matrix4f().rotateX((float) Math.toRadians(1.0f)); // Example rotation
+            glUniformMatrix4fv(modelLoc, false, model.get(new float[16]));
+            glUniformMatrix4fv(viewLoc, false, camera.getViewMatrix().get(new float[16]));
+            glUniformMatrix4fv(projLoc, false, camera.getProjectionMatrix().get(new float[16]));
 
             // Dynamically set offset and scale during each render loop
             float time = (float) glfwGetTime();
             float offsetX = (float) Math.sin(time) * 0.5f;
             float scale = 1.0f + (float) Math.sin(time) * 0.5f;
 
-            // Update uniforms
+            // Update texture uniforms
             glUniform2f(texOffsetLocation, offsetX, 0.0f);
             glUniform2f(texScaleLocation, scale, scale);
 
             // Bind texture and mesh for rendering
-            glActiveTexture(GL_TEXTURE1);
+            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textureID);
             glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
 
