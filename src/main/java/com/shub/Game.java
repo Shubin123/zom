@@ -2,6 +2,7 @@ package com.shub;
 
 import org.lwjgl.Version;
 
+
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -14,13 +15,12 @@ public class Game {
     public long window;
 
 
-    Game(long window) {
-        this.window = window;
+    Game() {
+
     }
 
     public void start() throws Exception {
-        System.out.println("Hello LWJGL " + Version.getVersion() + "!");
-
+        System.out.println("using LWJGL " + Version.getVersion() + "!");
 
         Init i = new Init(window);
 
@@ -40,3 +40,5 @@ public class Game {
         glfwSetErrorCallback(null).free();
     }
 }
+
+

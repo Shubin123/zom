@@ -19,7 +19,7 @@ public class Camera {
 
     public void update() {
         // Simulating non-stationary movement (rotating around the Y-axis for now)
-        yaw += 0.01f;
+        yaw += 0.0001f;
 
         // Create view matrix
         viewMatrix.identity();

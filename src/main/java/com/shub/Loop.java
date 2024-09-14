@@ -20,6 +20,15 @@ public class Loop {
     public void start() throws Exception {
         // Initialize OpenGL capabilities
         GL.createCapabilities();
+//        glEnable(GL_CULL_FACE);
+        glEnable (GL_DEPTH_TEST);
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // mesh view mode
+
+//        // Set the culling to back face only
+//        glCullFace(GL_BACK); // IF TRANSPARENCY IS ON WE ARE FUCKCUFCKCKCKKCKED
+//        // Set the front face orientation (default is counter-clockwise)
+//        glFrontFace(GL_CW);
+
 
         // Set up the objects (shaders, textures, mesh)
         object.setup();
@@ -50,18 +59,20 @@ public class Loop {
             // Use the shader program
             glUseProgram(shaderProgram);
 
-            // Update matrices and send them to the shader
-            camera.update();
-
-            Matrix4f model = new Matrix4f().rotateX((float) Math.toRadians(1.0f)); // Example rotation
-            glUniformMatrix4fv(modelLoc, false, model.get(new float[16]));
-            glUniformMatrix4fv(viewLoc, false, camera.getViewMatrix().get(new float[16]));
-            glUniformMatrix4fv(projLoc, false, camera.getProjectionMatrix().get(new float[16]));
-
             // Dynamically set offset and scale during each render loop
             float time = (float) glfwGetTime();
             float offsetX = (float) Math.sin(time) * 0.5f;
             float scale = 1.0f + (float) Math.sin(time) * 0.5f;
+
+
+            // Update matrices and send them to the shader
+            camera.update();
+
+            Matrix4f model = new Matrix4f().rotateX((float) Math.toRadians(time*100)); // Example rotation
+            glUniformMatrix4fv(modelLoc, false, model.get(new float[16]));
+            glUniformMatrix4fv(viewLoc, false, camera.getViewMatrix().get(new float[16]));
+            glUniformMatrix4fv(projLoc, false, camera.getProjectionMatrix().get(new float[16]));
+
 
             // Update texture uniforms
             glUniform2f(texOffsetLocation, offsetX, 0.0f);

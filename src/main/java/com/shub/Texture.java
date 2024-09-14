@@ -32,7 +32,6 @@ public class Texture {
             ByteBuffer data = STBImage.stbi_load(filePath, width, height, nrChannels, 4); // Load as RGBA
 
             if (data != null) {
-                System.out.println(data);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
                 glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps
                 STBImage.stbi_image_free(data);  // Free memory
