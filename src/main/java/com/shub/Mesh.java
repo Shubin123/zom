@@ -38,6 +38,7 @@ public class Mesh {
         glBindVertexArray(0); // Unbind the VAO
     }
 
+    @org.jetbrains.annotations.NotNull
     private FloatBuffer createFloatBuffer(float[] data) {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
         buffer.put(data);
