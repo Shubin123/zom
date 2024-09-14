@@ -18,7 +18,7 @@ public class Game {
         this.window = window;
     }
 
-    public void start() throws IOException {
+    public void start() throws Exception {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
 

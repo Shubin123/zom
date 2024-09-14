@@ -27,17 +27,19 @@ public class Loop {
         this.window = window;
     }
 
-    public void start() throws IOException {
+    public void start() throws Exception {
         GL.createCapabilities();
+        Shader m_shader = new Shader();
 
         // Load and compile shaders (add these methods yourself)
-        int vertexShader = createShader("./src/resources/shaders/vert", GL_VERTEX_SHADER);
-        int fragmentShader = createShader("./src/resources/shaders/frag", GL_FRAGMENT_SHADER);
+        int m_vertexShader = m_shader.createShader("./src/resources/shaders/vert", GL_VERTEX_SHADER);
+        int m_fragmentShader = m_shader.createShader("./src/resources/shaders/frag", GL_FRAGMENT_SHADER);
 
         // Link shaders into a program
-        shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
+//        m_shaderProgram = glCreateProgram();
+        shaderProgram = m_shader.getShaderProgramId();
+        glAttachShader(shaderProgram, m_vertexShader);
+        glAttachShader(shaderProgram, m_fragmentShader);
         glLinkProgram(shaderProgram);
 
         // Check for linking errors
@@ -47,8 +49,8 @@ public class Loop {
         }
 
         // Delete the shaders as they're linked into the program now and no longer necessary
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
+        glDeleteShader(m_vertexShader);
+        glDeleteShader(m_fragmentShader);
 
         // Vertex data (including texture coordinates)
         float[] vertices = {
@@ -63,9 +65,9 @@ public class Loop {
         Mesh mesh = Draw.createMesh(vertices, indices);
 
         // Load the texture
-        textureID = loadTexture("./src/resources/textures/city.png");
+        textureID = Texture.loadTexture("./src/resources/textures/city.png");
         String filePath = "./src/resources/textures/city.png";
-        checkLoaded(filePath);
+        Texture.checkLoaded(filePath);
         // Uniform locations for texture offset and scale
         int texOffsetLocation = glGetUniformLocation(shaderProgram, "uTexOffset");
         int texScaleLocation = glGetUniformLocation(shaderProgram, "uTexScale");
@@ -119,74 +121,4 @@ public class Loop {
         glDeleteProgram(shaderProgram);
         glDeleteTextures(textureID); // Delete texture when done
     }
-
-    // Utility method for loading, compiling shaders
-    private int createShader(String filePath, int shaderType) throws IOException {
-        String shaderSource = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
-        int shader = glCreateShader(shaderType);
-        glShaderSource(shader, shaderSource);
-        glCompileShader(shader);
-
-        // Check for shader compilation errors
-        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Shader compilation failed: " + filePath);
-            System.err.println(glGetShaderInfoLog(shader));
-        }
-
-        return shader;
-    }
-
-    // Load texture using STB
-    private int loadTexture(String filePath) {
-        // Generate texture ID
-        int textureID = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, textureID);
-
-        // Set the texture wrapping/filtering options
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // Load the texture image
-        try (var stack = stackPush()) {
-            IntBuffer width = stack.mallocInt(1);
-            IntBuffer height = stack.mallocInt(1);
-            IntBuffer nrChannels = stack.mallocInt(1);
-
-            ByteBuffer data = STBImage.stbi_load(filePath, width, height, nrChannels, 4); // Load as RGBA
-
-            if (data != null) {
-                System.out.println(data);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-                glGenerateMipmap(GL_TEXTURE_2D); // Generate mipmaps
-                STBImage.stbi_image_free(data);  // Free memory
-            } else {
-                throw new RuntimeException("Failed to load texture: " + filePath);
-            }
-        }
-
-        return textureID;
-    }
-    private void checkLoaded(String filePath)
-    {
-        try (var stack = stackPush()) {
-            IntBuffer width = stack.mallocInt(1);
-            IntBuffer height = stack.mallocInt(1);
-            IntBuffer nrChannels = stack.mallocInt(1);
-
-            ByteBuffer data = STBImage.stbi_load(filePath, width, height, nrChannels, 4); // Load as RGBA
-
-            if (data != null) {
-                System.out.println("Loaded texture: " + filePath + ", Width: " + width.get(0) + ", Height: " + height.get(0) + ", Channels: " + nrChannels.get(0));
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(), height.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-                glGenerateMipmap(GL_TEXTURE_2D);
-                STBImage.stbi_image_free(data);
-            } else {
-                throw new RuntimeException("Failed to load texture: " + filePath);
-            }
-        }
-    }
-
-
 }

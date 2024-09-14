@@ -1,16 +1,20 @@
 package com.shub;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static org.lwjgl.opengl.GL20.*;
 
 public class Shader {
-    private final int programId;
+    public int programId;
 
     private int vertexShaderId;
 
     private int fragmentShaderId;
 
     public Shader() throws Exception {
-        programId = glCreateProgram();
-        if (programId == 0) {
+        this.programId = glCreateProgram();
+        if (this.programId == 0) {
             throw new Exception("Could not create Shader");
         }
     }
@@ -22,9 +26,13 @@ public class Shader {
     public void createFragmentShader(String shaderCode) throws Exception {
         fragmentShaderId = createShader(shaderCode, GL_FRAGMENT_SHADER);
     }
+    public int getShaderProgramId() {
+        return programId;
+    }
 
-    protected int createShader(String shaderCode, int shaderType) throws Exception {
+    public int createShader(String filePath, int shaderType) throws Exception {
         int shaderId = glCreateShader(shaderType);
+        String shaderCode = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
         if (shaderId == 0) {
             throw new Exception("Error creating shader. Type: " + shaderType);
         }
@@ -40,6 +48,7 @@ public class Shader {
 
         return shaderId;
     }
+
 
     public void link() throws Exception {
         glLinkProgram(programId);
@@ -75,4 +84,6 @@ public class Shader {
             glDeleteProgram(programId);
         }
     }
+
+
 }
